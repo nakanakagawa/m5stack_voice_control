@@ -33,10 +33,11 @@ class VoiceControlNode(Node):
         self.commands = {
             0:  ("STOP",        self.action_stop), # 停止
             11: ("FORWARD",     self.action_forward), # 直進
+            1:  ("SLOW",        self.action_slow), # ゆっくり直進
             3:  ("TURN RIGHT",  self.action_turn_right), # 右旋回
             4:  ("TURN LEFT",   self.action_turn_left), # 左旋回
-
-            # 99: ("SPIN ONCE",   self.action_spin_once),
+            10: ("BACK",        self.action_back), # 後退
+            99: ("SPIN ONCE",   self.action_spin_once), # 左に一回転
         }
         
         self.get_logger().info('Voice Control Node started')
@@ -57,36 +58,6 @@ class VoiceControlNode(Node):
         self.get_logger().info(f"Executing command: {name}")
         func()  # ← 登録された関数を実行！    
         
-        # twist = Twist()
-        
-        # if msg.data == 0: # 停止
-        #     twist.linear.x = 0.0
-        #     twist.angular.z = 0.0
-        #     self.get_logger().info('Command: STOP')
-            
-        # elif msg.data == 11: # 直進
-        #     twist.linear.x = 0.1  # 0.2 m/s
-        #     twist.angular.z = 0.0
-        #     self.get_logger().info('Command: FORWARD')
-            
-        # elif msg.data == 3: # 右旋回
-           
-        #     twist.linear.x = 0.0  
-        #     twist.angular.z = -0.2 # マイナスは右回り
-        #     self.get_logger().info('Command: TURN RIGHT')
-
-        # elif msg.data == 4: # 左旋回
-           
-        #     twist.linear.x = 0.1  
-        #     twist.angular.z = 0.2 # プラスは左回り
-        #     self.get_logger().info('Command: TURN LEFT')
-
-        # else:
-        #     self.get_logger().warn(f'未設定の数値: {msg.data}')
-        #     return
-        
-        # # cmd_velにパブリッシュ
-        # self.publisher.publish(twist)
 
 
     # ========== 動作ユーティリティ ==========
@@ -111,11 +82,17 @@ class VoiceControlNode(Node):
     def action_forward(self): # 直進
         self.publish_cmd(0.1, 0.0)
 
+    def action_slow(self): # ゆっくり直進
+        self.publish_cmd(0.05, 0.0)
+
     def action_turn_right(self): # 右旋回
-        self.publish_cmd(0.0, -0.2)
+        self.publish_cmd(0.0, -0.4)
 
     def action_turn_left(self): # 左旋回 
-        self.publish_cmd(0.0, 0.2)
+        self.publish_cmd(0.0, 0.4)
+
+    def action_back(self): # 後退
+        self.publish_cmd(-0.1, 0.0)
 
     # ========== ★追加可能：複雑な動作 ==========
     def action_spin_once(self):
@@ -124,8 +101,8 @@ class VoiceControlNode(Node):
 
         # 1回転 ≒ 2π rad
         # angular_z = 0.5 rad/s → 1回転に約 12.5 sec
-        self.publish_cmd(0.0, 0.5)
-        time.sleep(12.5)
+        self.publish_cmd(0.0, 1.0)
+        time.sleep(6.3)
 
         self.action_stop()
 
