@@ -34,8 +34,8 @@ class VoiceControlNode(Node):
             0:  ("STOP",        self.action_stop), # 停止
             11: ("FORWARD",     self.action_forward), # 直進
             1:  ("SLOW",        self.action_slow), # ゆっくり直進
-            3:  ("TURN RIGHT",  self.action_turn_right), # 右旋回
-            4:  ("TURN LEFT",   self.action_turn_left), # 左旋回
+            3:  ("TURN RIGHT",  self.action_turn_right), # 90度右に旋回
+            4:  ("TURN LEFT",   self.action_turn_left), # 90度左に旋回
             10: ("BACK",        self.action_back), # 後退
             99: ("SPIN ONCE",   self.action_spin_once), # 左に一回転
         }
@@ -85,11 +85,11 @@ class VoiceControlNode(Node):
     def action_slow(self): # ゆっくり直進
         self.publish_cmd(0.05, 0.0)
 
-    def action_turn_right(self): # 右旋回
-        self.publish_cmd(0.0, -0.4)
+    # def action_turn_right(self): # 右旋回
+    #     self.publish_cmd(0.0, -0.4)
 
-    def action_turn_left(self): # 左旋回 
-        self.publish_cmd(0.0, 0.4)
+    # def action_turn_left(self): # 左旋回 
+    #     self.publish_cmd(0.0, 0.4)
 
     def action_back(self): # 後退
         self.publish_cmd(-0.1, 0.0)
@@ -100,11 +100,24 @@ class VoiceControlNode(Node):
         self.get_logger().info("Performing 360-degree spin")
 
         # 1回転 ≒ 2π rad
-        # angular_z = 0.5 rad/s → 1回転に約 12.5 sec
+        # angular_z = 1.0 rad/s → 1回転に約 6.3 sec
         self.publish_cmd(0.0, 1.0)
         time.sleep(6.3)
 
         self.action_stop()
+
+    def action_turn_right(self): # 右旋回
+        self.publish_cmd(0.0, -1.0)
+        time.sleep(1.57) #45度回転
+
+        self.action_stop()
+
+    def action_turn_left(self): # 左旋回 
+        self.publish_cmd(0.0, 1.0)
+        time.sleep(1.57) #45度回転
+
+        self.action_stop()
+                                                                                                                                  
 
 def main(args=None):
     rclpy.init(args=args)
